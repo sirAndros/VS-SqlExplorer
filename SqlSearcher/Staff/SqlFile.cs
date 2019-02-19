@@ -63,6 +63,8 @@ namespace SqlSearcher
         public void GotoItem(SqlObjectNode item)
         {
             var window = _projectItem?.Open();
+            if (window == null)
+                return;
             window.Visible = true;
             window.Activate();
             var findResult = _projectItem.DTE.Find.FindReplace(vsFindAction.vsFindActionFind, item.Name, ResultsLocation: vsFindResultsLocation.vsFindResultsNone);

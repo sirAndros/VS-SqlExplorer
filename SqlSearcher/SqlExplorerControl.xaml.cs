@@ -17,7 +17,7 @@ namespace SqlSearcher
     {
         private readonly SqlExplorer _window;
 
-        public ObservableCollection<SqlFile> Files { get; set; }
+        public ObservableCollection<SqlFile> Files { get; } = new ObservableCollection<SqlFile>();
 
         public SqlExplorerControl(SqlExplorer explorerWindow)
         {
@@ -45,7 +45,7 @@ namespace SqlSearcher
 
         private void InitItems()
         {
-            Files = new ObservableCollection<SqlFile>();
+            Files.Clear();
 
             var projItems = GetSqlProjectItems();
             foreach (var item in projItems)
