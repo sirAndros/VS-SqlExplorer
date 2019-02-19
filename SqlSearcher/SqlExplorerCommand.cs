@@ -1,12 +1,5 @@
-﻿//------------------------------------------------------------------------------
-// <copyright file="SqlExplorerCommand.cs" company="ATC">
-//     Copyright (c) ATC.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
-
-using System;
+﻿using System;
 using System.ComponentModel.Design;
-using System.Globalization;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 

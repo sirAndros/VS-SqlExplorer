@@ -19,10 +19,13 @@ namespace SqlSearcher
         private const string TypeGroup = "TYPE";
         private const string SchemeGroup = "SCHEME";
         private const string NameGroup = "NAME";
+        private const string Index = "INDEX";
         private static string _regexPattern =
             @"(?:(?<"+TypeGroup+@">" + GetFileItemTypesOrString() + @")\w*\s*"
             + @"(?:\[|\"")?(?<"+SchemeGroup+@">[\w\ ]+?)(?:\]|\"")?"
             + @"\.(?:\[|\"")?(?<"+NameGroup+@">[\w\ ]+?)(?:\]|\"")?[\s\r\n\(])"
+            + @"|(?:(?<"+TypeGroup+@">"+Index+@")\s*[\s\w\ \[\""\]_]+ON\s* (?:\[|\"")?(?<"+SchemeGroup+@">[\w\ ]+?)(?:\]|\"")?"
+            + @"\.(?:\[|\"")?(?<"+NameGroup+@">[\w\ ]+?)(?:\]|\"")[\s\r\n\(])"
             ;//+ @"|(?:sp_rename\s+N?\'\[?(?<SCHEMA>[\w\ ]+?)\]?\.(?:\[?[\w\ ]+?\]?)\'\,\s+N?\'\[?([\w\ ]+?)\]?\'\,\s+\'\w+\')";
 
         private static readonly Regex _regex = new Regex(_regexPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
@@ -77,6 +80,8 @@ namespace SqlSearcher
 
         private static FileItemType GetItemType(string value)
         {
+            if (String.Equals(value, Index, StringComparison.OrdinalIgnoreCase))
+                return FileItemType.Table;
             return (FileItemType)Enum.Parse(typeof(FileItemType), value, true);
         }
 
