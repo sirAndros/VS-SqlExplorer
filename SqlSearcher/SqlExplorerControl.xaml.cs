@@ -51,7 +51,8 @@ namespace SqlSearcher
             foreach (var item in projItems)
             {
                 var file = SqlFileFactory.FromProjectItem(item);
-                Files.Add(file);
+                if (file.Items?.Count > 0)
+                    Files.Add(file);
             }
 
             //GenerateStub();

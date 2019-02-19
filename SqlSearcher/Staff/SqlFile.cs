@@ -86,7 +86,7 @@ namespace SqlSearcher
                 return;
             var editPoint = doc.StartPoint.CreateEditPoint();
             editPoint.MoveToAbsoluteOffset(position);
-            editPoint.TryToShow(vsPaneShowHow.vsPaneShowTop);
+            editPoint.TryToShow(vsPaneShowHow.vsPaneShowCentered);
         }
 
         internal bool Filter(FilterParams filter)
