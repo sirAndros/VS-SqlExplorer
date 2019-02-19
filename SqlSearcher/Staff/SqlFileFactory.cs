@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Text.RegularExpressions;
 using EnvDTE;
 
@@ -32,26 +32,47 @@ namespace SqlSearcher
             var result = new SqlFile(projItem);
             result.Name = projItem.Name;
             result.Path = projItem.FileNames[0];
-            result.Items = GetFileItems(result);
+            result.Items = GetFileItems(result, projItem);
             return result;
         }
 
-        private static ObservableCollection<SqlObjectNode> GetFileItems(SqlFile result)
+        private static ObservableCollection<SqlObjectNode> GetFileItems(SqlFile result, ProjectItem projItem)
         {
-            var fileItems = new ObservableCollection<SqlObjectNode>();
-            string fileContent = File.ReadAllText(result.Path);
+            string fileContent = GetFileContent(projItem);
+            var fileItems = new Dictionary<string, SqlObjectNode>();
             foreach (Match match in _regex.Matches(fileContent))
             {
                 if (match.Success)
                 {
                     var itemType = GetItemType(match.Groups[TypeGroup].Value);
-                    var item = BuildFileItem(result, itemType,
-                                    match.Groups[SchemeGroup].Value,
-                                    match.Groups[NameGroup].Value);
-                    fileItems.Add(item);
+                    string scheme = match.Groups[SchemeGroup].Value;
+                    string name = match.Groups[NameGroup].Value;
+                    string key = scheme + "." + name;
+                    SqlObjectNode node;
+                    if (!fileItems.TryGetValue(key, out node))
+                    {
+                        node = BuildFileItem(result, itemType, scheme, name);
+                        fileItems.Add(key, node);
+                    }
+                    node.AddIndex(match.Index);
                 }
             }
-            return fileItems;
+            return new ObservableCollection<SqlObjectNode>(fileItems.Values);
+        }
+
+        private static string GetFileContent(ProjectItem projItem)
+        {
+            bool wasOpened = !projItem.IsOpen;
+            Window win = projItem.Open();
+
+            var doc = win.Document.Object("TextDocument") as TextDocument;
+            var editPoint = doc.CreateEditPoint(doc.StartPoint);
+            string fileContent = editPoint.GetText(doc.EndPoint);
+
+            if (wasOpened)
+                win.Close();
+
+            return fileContent;
         }
 
         private static FileItemType GetItemType(string value)

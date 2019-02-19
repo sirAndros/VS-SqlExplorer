@@ -67,9 +67,26 @@ namespace SqlSearcher
                 return;
             window.Visible = true;
             window.Activate();
-            var findResult = _projectItem.DTE.Find.FindReplace(vsFindAction.vsFindActionFind, item.Name, ResultsLocation: vsFindResultsLocation.vsFindResultsNone);
+            var findResult = _projectItem.DTE.Find.FindReplace(vsFindAction.vsFindActionFind, item.Name
+                                    , Target: vsFindTarget.vsFindTargetCurrentDocument
+                                    , ResultsLocation: vsFindResultsLocation.vsFindResultsNone);
             //if (findResult != vsFindResult.vsFindResultFound)
             //    throw new Exception("Not found");
+        }
+
+        public void GotoPosition(int position)
+        {
+            var window = _projectItem?.Open();
+            if (window == null)
+                return;
+            window.Visible = true;
+            window.Activate();
+            var doc = window.Document?.Object("TextDocument") as TextDocument;
+            if (doc == null)
+                return;
+            var editPoint = doc.StartPoint.CreateEditPoint();
+            editPoint.MoveToAbsoluteOffset(position);
+            editPoint.TryToShow(vsPaneShowHow.vsPaneShowTop);
         }
 
         internal bool Filter(FilterParams filter)

@@ -10,6 +10,9 @@ namespace SqlSearcher
 {
     public class SqlObjectNode
     {
+        private readonly List<int> _positionsInFile = new List<int>();
+        private int _currentIndex = 0;
+
         public string Name { get; set; }
         public string Scheme { get; set; }
 
@@ -24,17 +27,15 @@ namespace SqlSearcher
             File = file;
             Name = name;
             Scheme = scheme ?? "dbo";
-            FindInDocument = new Command(() => File.GotoItem(this));
-        }
-
-
-        private void OnItemMouseDoubleClick(object sender, MouseButtonEventArgs args)
-        {
-            var tvi = sender as TreeViewItem;
-            if (tvi?.IsSelected != true)
-                return;
-
-            File.GotoItem(this);
+            FindInDocument = new Command(() =>
+            {
+                if (_positionsInFile.Count == 0)
+                    return;
+                if (_currentIndex >= _positionsInFile.Count)
+                    _currentIndex = 0;
+                int position = _positionsInFile[_currentIndex++];
+                File.GotoPosition(position);
+            });
         }
 
         public override string ToString()
@@ -52,6 +53,12 @@ namespace SqlSearcher
             return nameFilter.MatchCase
                 ? fullName.Contains(nameFilter.FilterString)
                 : fullName.ToLowerInvariant().Contains(nameFilter.FilterString.ToLowerInvariant());
+        }
+
+        internal void AddIndex(int index)
+        {
+            if (!_positionsInFile.Contains(index))
+                _positionsInFile.Add(index);
         }
     }
 
